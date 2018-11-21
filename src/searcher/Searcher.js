@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import AppNavbar from '../AppNavbar'
 import PropTypes from 'prop-types';
-import InputBase from '@material-ui/core/InputBase';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import { withStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
@@ -11,6 +10,7 @@ import Grid from '@material-ui/core/Grid';
 import axios from 'axios';
 import { Redirect } from '@reach/router';
 import LoadingPage from '../helper/LoadingPage';
+import InputBase from '@material-ui/core/InputBase';
 
 const styles = theme => ({
   root: {
@@ -50,7 +50,7 @@ const styles = theme => ({
     ...theme.mixins.gutters(),
     paddingTop: theme.spacing.unit * 2,
     paddingBottom: theme.spacing.unit * 2,
-    height: window.innerHeight,
+    height: window.innerHeight * 0.85,
     margin: theme.spacing.unit,
     boxShadow: '0 0 0 1px rgba(0, 0, 0, 1)',
     borderRadius: 0,
@@ -65,13 +65,29 @@ const styles = theme => ({
   }
 })
 
+const jobs = [
+  {
+    title: 'Example Job title 1',
+    description: 'Example quick description of job 1 overflow text overflow textoverflow textoverflow textoverflow textoverflow textoverflow textoverflow textoverflow textoverflow textoverflow textoverflow textoverflow textoverflow text'
+  },
+  {
+    title: 'Example Job title 2',
+    description: 'Example quick description of job 2'
+  }
+];
+
 class SearcherHome extends Component {
 
   state = {
     isRole: false,
-    isLoading: true
-  }
+    isLoading: true,
+    currTitle: '',
+    currDesc: '',
+    jobs,
+    filtered: jobs,
+  };
 
+  
   componentDidMount() {
     this.checkRole();
   }
@@ -100,10 +116,36 @@ class SearcherHome extends Component {
     })
   }
 
+  suggestJobs = evt => {
+    const inputValue = evt.target.value;
+    this.filterJobs(inputValue);
+  }
+
+  filterJobs = inputValue => {
+    const { jobs } = this.state;
+    
+    this.setState({
+      filtered: jobs.filter(item => {
+        return inputValue.split("").every(internalItem => {
+          return item.title.toLowerCase().indexOf(internalItem.toLowerCase()) !== -1
+              || item.description.toLowerCase().indexOf(internalItem.toLowerCase()) !== -1; 
+        });
+      })
+    });
+  }
+
+  setCurrTitleAndDesc (title, description) {
+    this.setState({
+      currTitle: title,
+      currDesc: description
+    })
+  }
+
   render() {
     const { classes } = this.props;
-    const { isLoading, isRole } = this.state;
+    const { isLoading, isRole, currTitle, currDesc, filtered } = this.state;
 
+    
     return (<div>{!isLoading ? (<div> { isRole ? (
       <div>
         <AppNavbar />
@@ -117,35 +159,29 @@ class SearcherHome extends Component {
                 <InputBase
                   placeholder="Search for jobs..."
                   fullWidth
+                  onChange={this.suggestJobs}
                   classes={{
                     input: classes.inputInput,
                   }}
                 />
               </div>
-              <Paper className={classes.listItem} elevation={1}>
-                <Typography variant="subheading">
-                  This is a sheet of paper.
-                </Typography>
-                <Typography variant="body1">
-                  Paper can be used to build surface or other elements for your application.
-                </Typography>
-              </Paper>
-              <Paper className={classes.listItem} elevation={1}>
-                <Typography variant="subheading">
-                  This is a sheet of paper.
-                </Typography>
-                <Typography variant="subheading">
-                  Paper can be used to build surface or other elements for your application.
-                </Typography>
-              </Paper>
+              {filtered.map((job, i) => (
+                <Paper key={i} onClick={this.setCurrTitleAndDesc.bind(this, job.title, job.description)} className={classes.listItem} elevation={1}>
+                  <Typography variant="h6">
+                    {job.title}
+                  </Typography>
+                  <Typography noWrap variant="body1">
+                    {job.description}
+                  </Typography>
+                </Paper>))}
             </Grid>
-            <Grid item xs={6} style={{ height: '100%' }}>
+            <Grid item xs={6} >
               <Paper className={classes.paper} elevation={1}>
-                <Typography variant="subheading">
-                  This is a sheet of paper.
+                <Typography variant="h6">
+                  {currTitle}
                 </Typography>
                 <Typography variant="body1">
-                  Paper can be used to build surface or other elements for your application.
+                  {currDesc}
                 </Typography>
               </Paper>
             </Grid>
