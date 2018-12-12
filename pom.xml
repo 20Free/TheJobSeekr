@@ -5,7 +5,7 @@
 
 	<groupId>com</groupId>
 	<artifactId>TheJobSeekr</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 	<packaging>jar</packaging>
 
 	<name>TheJobSeekr</name>
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.1.0.RELEASE</version>
+		<version>2.1.1.RELEASE</version>
 	</parent>
 
 	<dependencies>
@@ -28,7 +28,7 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
         <dependency>
        		<groupId>com.google.firebase</groupId>
   			<artifactId>firebase-admin</artifactId>
@@ -41,21 +41,30 @@
 			<optional>true</optional>
 			<scope>runtime</scope>
 		</dependency>
-		
-		<dependency>
-     		<groupId>commons-io</groupId>
-    		<artifactId>commons-io</artifactId>
-    		<version>2.6</version>
-		</dependency>
 
 		<dependency>
    			<groupId>com.mashape.unirest</groupId>
     		<artifactId>unirest-java</artifactId>
     		<version>1.4.9</version>
-		</dependency>
+    	</dependency>	
 	</dependencies>
 	<build>
+		<sourceDirectory>src/main/java</sourceDirectory>
 		<plugins>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/lib</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<executions>
@@ -72,7 +81,7 @@
 								<directory>${basedir}/build</directory>
 								</resource>
 							</resources>
-						</configuration>            
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
@@ -128,9 +137,9 @@
 			</resource>
 		</resources>
 	</build>
-	
 
-	<repositories>	
+
+	<repositories>
 		<repository>
 			<id>spring-releases</id>
 			<url>https://repo.spring.io/libs-release</url>

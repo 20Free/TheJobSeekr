@@ -1,4 +1,4 @@
-package com.thejobseekr.model;
+package com.thejobseekr.web.model;
 
 public class UserPojo {
 	

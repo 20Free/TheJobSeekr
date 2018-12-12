@@ -19,3 +19,5 @@ yarn.lock
 yarn-error.log
 /src/incons/symbol.png
 /build/
+/lib/
+/.sts4-cache/classpath-data.json
