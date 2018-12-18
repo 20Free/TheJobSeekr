@@ -8,8 +8,8 @@ import NotFound from './helper/NotFound';
 
 class RequireAuth extends Component {
   state = {
-    isAuthenticated: true,
-    isLoading: false
+    isAuthenticated: false,
+    isLoading: true
   }
 
   componentDidMount() {
@@ -21,8 +21,8 @@ class RequireAuth extends Component {
       .then(response => {
         if(response.data) {
           this.setState({
-            isAuthenticated: false,
-            isLoading: true
+            isAuthenticated: true,
+            isLoading: false
           })
         } else {
           this.setState({

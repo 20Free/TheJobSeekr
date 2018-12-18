@@ -100,27 +100,11 @@ class SearcherHome extends Component {
 
 
   componentDidMount() {
-    this.loadJobs();
-  }
-
-  loadJobs() {
-    this.setState({
-      isSearching: true
-    })
-    axios.post("https://thejobseekr-api.herokuapp.com/api/query", "a")
-    .then(response => {
-      this.setState({
-         jobs: JSON.parse(JSON.stringify(response)).data,
-         isSearching: false,
-      });
-      this.checkRole();
-    })
-    .catch(err => {
-      console.log(err);
-    });
+    this.checkRole();
   }
 
   checkRole() {
+	console.log('got here')
     axios.post("/user/role", sessionStorage.getItem("username"))
     .then(response => {
       if(JSON.parse(JSON.stringify(response)).data === 'searcher') {
@@ -128,6 +112,7 @@ class SearcherHome extends Component {
           isRole: true,
           isLoading: false
         })
+        this.loadJobs();
       } else {
         this.setState({
           isLoading: false
@@ -143,6 +128,22 @@ class SearcherHome extends Component {
       return(<Redirect to="access_denied"/>)
     })
   }
+  
+  loadJobs() {
+	    this.setState({
+	      isSearching: true
+	    })
+	    axios.post("https://thejobseekr-api.herokuapp.com/api/query", "a")
+	    .then(response => {
+	      this.setState({
+	         jobs: JSON.parse(JSON.stringify(response)).data,
+	         isSearching: false,
+	      });
+	    })
+	    .catch(err => {
+	      console.log(err);
+	    });
+	  }
 
   suggestJobs = evt => {
     const inputValue = evt.target.value;
@@ -165,13 +166,22 @@ class SearcherHome extends Component {
     });
   }
 
-  setCurrTitleDescAndApplyLink = (title, description, id) => {
-    this.setState({
-      currTitle: title,
-      currDesc: description,
-      buttonVisible: true,
-      currLink: "https://www.airbnb.ca/careers/apply2/" + id + "?gh_src=",
-    })
+  setCurrTitleDescAndApplyLink = (title, description, id, ref) => {
+	if(ref.match(/https:\/\/www.airbnb.ca\/careers\/departments\/position\/\d+/)) { //it's a career job
+	    this.setState({
+	      currTitle: title,
+	      currDesc: description,
+	      buttonVisible: true,
+	      currLink: "https://www.airbnb.ca/careers/apply2/" + id + "?gh_src=",
+	    })
+	} else { //it's a contract job
+		this.setState({
+		  currTitle: title,
+		  currDesc: description,
+		  buttonVisible: true,
+		  currLink: ref + "#app",
+		})
+	}
   }
 
   search = () => {
@@ -181,9 +191,7 @@ class SearcherHome extends Component {
     })
     if(searchText) {
       var query = searchText.replace(/\s/g, '|');
-      const httpClient = axios.create();
-      httpClient.defaults.timeout = 40000;
-      httpClient.post('https://thejobseekr-api.herokuapp.com/api/query', query)
+      axios.post('https://thejobseekr-api.herokuapp.com/api/query', query)
       .then(response => {
         this.setState({
            jobs: JSON.parse(JSON.stringify(response)).data,
@@ -239,7 +247,7 @@ class SearcherHome extends Component {
               {isSearching ?
                 (<LoadingPaper/>):
                 (jobs.map((job, i) => (
-                  <Paper key={i} onClick={this.setCurrTitleDescAndApplyLink.bind(this, job.metadata.title, job.content, job.jobID)} className={classes.listItem} elevation={1}>
+                  <Paper key={i} onClick={this.setCurrTitleDescAndApplyLink.bind(this, job.metadata.title, job.content, job.jobID, job.reference)} className={classes.listItem} elevation={1}>
                     <Typography variant="h6">
                       {job.metadata.title}
                     </Typography>
